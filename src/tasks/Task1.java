@@ -4,8 +4,7 @@ import common.Person;
 import common.PersonService;
 import common.Task;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /*
@@ -19,10 +18,16 @@ public class Task1 implements Task {
     // !!! Редактируйте этот метод !!!
     private List<Person> findOrderedPersons(List<Integer> personIds) {
         Set<Person> persons = PersonService.findPersons(personIds);
-        return personIds.stream()
-                .flatMap(id -> persons.stream().filter(person -> person.getId().equals(id)))
+
+        Map<Person, Integer> map = new HashMap<>();
+        for (Person person : persons) {
+            map.put(person, Collections.binarySearch(personIds, person.getId()));
+        }
+        return map.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
-        // Ассимптотика O(N) - сравниваем только ключи в несортированном сете
+        // Ассимптотика O(N*log(N)). Как заиниализировать мапу в стриме не нашел. Но порядок работает
     }
 
     @Override

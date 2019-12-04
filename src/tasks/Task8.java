@@ -3,7 +3,10 @@ package tasks;
 import common.Person;
 import common.Task;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,12 +26,8 @@ public class Task8 implements Task {
 
     //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
     public List<String> getNames(List<Person> persons) {
-        //size()==0 -> isEmpty
-        if (persons.isEmpty()) {
-            return Collections.emptyList();
-        }
-        persons.remove(0);
-        return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+        //skip 1 элемент. Если пустой - вернет пустой лист
+        return persons.stream().skip(1).map(Person::getFirstName).collect(Collectors.toList());
     }
 
     //ну и различные имена тоже хочется

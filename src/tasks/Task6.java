@@ -5,7 +5,10 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,17 +25,21 @@ public class Task6 implements Task {
                                               Map<Integer, Set<Integer>> personAreaIds,
                                               Collection<Area> areas) {
 
-        Map<Integer, String> mapOfAreas = new HashMap<>();
-        for (Area area : areas) {
-            mapOfAreas.put(area.getId(), area.getName());
-        }
+        // Если у id нет регионов, то хотелось бы вывести имя и ничего, например, "Олег - "
+        // Но сейчас этот id вообще не выведется
         return persons.stream()
                 .flatMap(person -> personAreaIds.get(person.getId()).stream()
-                        .flatMap(region -> Stream.of(String.format("%s - %s", person.getFirstName(),
-                                mapOfAreas.get(region)))))
+                        .flatMap(region -> Stream.of(String.format("%s - %s",
+                                person.getFirstName(),
+                                areas.stream()
+                                        .filter(area -> area.getId().equals(region))
+                                        .map(Area::getName)
+                                        .reduce("", (s1, s2) -> s1 + s2)
+                        )))
+                        .collect(Collectors.toSet())
+                        .stream()
+                )
                 .collect(Collectors.toSet());
-
-
     }
 
     @Override
