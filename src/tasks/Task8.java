@@ -3,11 +3,7 @@ package tasks;
 import common.Person;
 import common.Task;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,37 +29,31 @@ public class Task8 implements Task {
     //ну и различные имена тоже хочется
     public Set<String> getDifferentNames(List<Person> persons) {
         //Distinct не нужен, Set уже включает в себя только различные элементы
-        return getNames(persons).stream().collect(Collectors.toSet());
+        //Да и вообще stream избыточен
+        return new HashSet<>(getNames(persons));
     }
 
     //Для фронтов выдадим полное имя, а то сами не могут
     public String convertPersonToString(Person person) {
-        // Заменил условия на однострочные конструкции
-        // Убрал объявление пустой строки
-        // Заменил FirstName на MiddleName
-        String result = (person.getSecondName() == null ? "" : person.getSecondName());
-        result += (person.getFirstName() == null ? "" : person.getFirstName());
-        result += (person.getMiddleName() == null ? "" : person.getMiddleName());
-        return result;
+        // добавил все значения в стрим
+        return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+                .filter(s -> s != null && !s.isEmpty())
+                .collect(Collectors.joining(" "));
     }
 
     // словарь id персоны -> ее имя
     public Map<Integer, String> getPersonNames(Collection<Person> persons) {
         // Заменил на stream, возвращающий map
-        return persons.stream().collect(Collectors.toMap(x -> x.getId(), x -> convertPersonToString(x)));
+
+        return persons.stream()
+                .collect(Collectors.toMap(x -> x.getId(), x -> convertPersonToString(x), (a, b) -> a));
     }
 
     // есть ли совпадающие в двух коллекциях персоны?
     public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
         // Заменил двойной цикл на подсчет элементов в map, ключами которой являются объекты Person,
         // а значениями - кол-во таких объектов в двух листах
-        return Stream.of(persons1, persons2)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                .entrySet()
-                .stream()
-                .filter(map -> map.getValue() > 1)
-                .map(Map.Entry::getValue)
-                .anyMatch(x -> x > 0);
+        return persons1.stream().anyMatch(person -> persons2.contains(person));
     }
 
     //Выглядит вроде неплохо...

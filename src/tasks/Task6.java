@@ -5,10 +5,7 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,20 +22,13 @@ public class Task6 implements Task {
                                               Map<Integer, Set<Integer>> personAreaIds,
                                               Collection<Area> areas) {
 
-        // Если у id нет регионов, то хотелось бы вывести имя и ничего, например, "Олег - "
-        // Но сейчас этот id вообще не выведется
+        Set<Integer> defaultRegion = Collections.singleton(0);
+        Map<Integer, String> areaMap = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
+
         return persons.stream()
-                .flatMap(person -> personAreaIds.get(person.getId()).stream()
+                .flatMap(person -> personAreaIds.getOrDefault(person.getId(), defaultRegion).stream()
                         .flatMap(region -> Stream.of(String.format("%s - %s",
-                                person.getFirstName(),
-                                areas.stream()
-                                        .filter(area -> area.getId().equals(region))
-                                        .map(Area::getName)
-                                        .reduce("", (s1, s2) -> s1 + s2)
-                        )))
-                        .collect(Collectors.toSet())
-                        .stream()
-                )
+                                person.getFirstName(), areaMap.get(region)))))
                 .collect(Collectors.toSet());
     }
 
